@@ -14,7 +14,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v3
       with:
-        repository: 'srivickynesh/slack-bot'
+        repository: 'redhat-appstudio/qe-tools'
 
     - name: Setup Go environment
       uses: actions/setup-go@v4
