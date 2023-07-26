@@ -1,2 +1,2 @@
-[![Prow-CI](https://github.com/srivickynesh/slack-bot/actions/workflows/slack-message.yml/badge.svg)](https://github.com/srivickynesh/slack-bot/actions/workflows/slack-message.yml)
+[![Prow-CI](https://github.com/redhat-appstudio/qe-tools/actions/workflows/slack-message.yml/badge.svg?branch=main)](https://github.com/redhat-appstudio/qe-tools/actions/workflows/slack-message.yml)
 # prow-ci
