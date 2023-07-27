@@ -3,8 +3,9 @@ name: Coffee-break
 on:
   schedule:
     - cron: '0 0 5 * *'  # This runs at 00:00 UTC on the 5th of every month
-  pull_request:
-    branches: [ main ]
+  push:
+    branches:
+      - main
 
 jobs:
   build:
