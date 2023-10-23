@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-go@v4
 
     - name: Run Test and Send Slack Message
-      run: go run coffee-break/coffee.go
+      run: go run main.go coffee-break
       env:
         SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         HACBS_CHANNEL_ID: ${{ secrets.HACBS_CHANNEL_ID }}
@@ -31,6 +31,6 @@ jobs:
         git init /__w/qe-tools/qe-tools
         git config user.name "GitHub Action"
         git config user.email "action@github.com"
-        git add coffee-break/last_week.txt
-        git commit -m "Update coffee-break/last_week.txt"
+        git add config/coffee-break/last_week.txt
+        git commit -m "Update config/coffee-break/last_week.txt"
         git push origin main -f
