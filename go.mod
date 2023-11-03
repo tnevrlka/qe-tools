@@ -7,7 +7,7 @@ require (
 	github.com/go-critic/go-critic v0.9.0
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
-	github.com/mgechev/revive v1.3.2
+	github.com/mgechev/revive v1.3.4
 	github.com/securego/gosec/v2 v2.17.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0
@@ -46,7 +46,7 @@ require (
 	github.com/ccojocar/zxcvbn-go v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/charithe/durationcheck v0.0.10 // indirect
-	github.com/chavacava/garif v0.0.0-20230227094218-b8c73b2037b8 // indirect
+	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/cristalhq/acmd v0.11.1 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
