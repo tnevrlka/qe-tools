@@ -9,7 +9,7 @@ require (
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
 	github.com/mgechev/revive v1.3.4
 	github.com/securego/gosec/v2 v2.18.2
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/sqs/goreturns v0.0.0-20181028201513-538ac6014518
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
