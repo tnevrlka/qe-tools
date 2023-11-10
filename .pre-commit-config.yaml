@@ -27,10 +27,6 @@ repos:
     #
     -   id: go-sec-mod
     #
-    # StaticCheck
-    #
-    -   id: go-staticcheck-mod
-    #
     # StructSlop
     #
     -   id: go-structslop-mod
@@ -44,12 +40,3 @@ repos:
     #
     -   id: go-lint
     -   id: go-critic
-    #
-    # GolangCI-Lint
-    # - Fast Multi-Linter
-    # - Can be configured to replace MOST other hooks
-    # - Supports repo config file for configuration
-    # - https://github.com/golangci/golangci-lint
-    #
-    -   id: golangci-lint-mod
-        args: [-c.golang-ci.yml]
