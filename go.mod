@@ -9,7 +9,7 @@ require (
 	github.com/go-critic/go-critic v0.9.0
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
 	github.com/mgechev/revive v1.3.4
-	github.com/onsi/ginkgo/v2 v2.13.0
+	github.com/onsi/ginkgo/v2 v2.13.1
 	github.com/orijtech/structslop v0.0.8
 	github.com/redhat-appstudio-qe/junit2html v0.0.0-20231113100636-5b753bd2ee31
 	github.com/securego/gosec/v2 v2.18.2
