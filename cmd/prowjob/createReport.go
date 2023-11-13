@@ -71,28 +71,28 @@ var createReportCmd = &cobra.Command{
 				if artifactFilename == finishedFilename {
 					if strings.Contains(string(stepName), "gather") {
 						openshiftCiJunit.Properties.Properties = append(openshiftCiJunit.Properties.Properties, reporters.JUnitProperty{Name: string(stepName), Value: gcsBrowserURLPrefix + strings.TrimSuffix(artifact.FullName, finishedFilename) + "artifacts"})
-
-						finished := metadata.Finished{}
-						err = yaml.Unmarshal([]byte(artifact.Content), &finished)
-						if err != nil {
-							return fmt.Errorf("cannot unmarshal %s into finished struct: %+v", artifact.Content, err)
-						}
-
-						var buildLog string
-						if val, ok := artifactsFilenameMap[buildLogFilename]; ok {
-							buildLog = val.Content
-						}
-
-						if *finished.Passed {
-							openshiftCiJunit.TestCases = append(openshiftCiJunit.TestCases, reporters.JUnitTestCase{Name: string(stepName), Status: ginkgoTypes.SpecStatePassed.String(), SystemErr: buildLog})
-						} else {
-							failure := &reporters.JUnitFailure{Message: fmt.Sprintf("%s has failed", stepName)}
-							tc := reporters.JUnitTestCase{Name: string(stepName), Status: ginkgoTypes.SpecStateFailed.String(), Failure: failure, SystemErr: buildLog}
-							openshiftCiJunit.Failures++
-							openshiftCiJunit.TestCases = append(openshiftCiJunit.TestCases, tc)
-						}
-						openshiftCiJunit.Tests++
 					}
+
+					finished := metadata.Finished{}
+					err = yaml.Unmarshal([]byte(artifact.Content), &finished)
+					if err != nil {
+						return fmt.Errorf("cannot unmarshal %s into finished struct: %+v", artifact.Content, err)
+					}
+
+					var buildLog string
+					if val, ok := artifactsFilenameMap[buildLogFilename]; ok {
+						buildLog = val.Content
+					}
+
+					if *finished.Passed {
+						openshiftCiJunit.TestCases = append(openshiftCiJunit.TestCases, reporters.JUnitTestCase{Name: string(stepName), Status: ginkgoTypes.SpecStatePassed.String(), SystemErr: buildLog})
+					} else {
+						failure := &reporters.JUnitFailure{Message: fmt.Sprintf("%s has failed", stepName)}
+						tc := reporters.JUnitTestCase{Name: string(stepName), Status: ginkgoTypes.SpecStateFailed.String(), Failure: failure, SystemErr: buildLog}
+						openshiftCiJunit.Failures++
+						openshiftCiJunit.TestCases = append(openshiftCiJunit.TestCases, tc)
+					}
+					openshiftCiJunit.Tests++
 				} else if artifactFilename == junitFilename {
 					if err = xml.Unmarshal([]byte(artifact.Content), rhtapJunitSuites); err != nil {
 						return fmt.Errorf("cannot decode rhtap JUnit suite into xml %+v: %+v", rhtapJunitSuites, err)
