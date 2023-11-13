@@ -13,7 +13,7 @@ require (
 	github.com/orijtech/structslop v0.0.8
 	github.com/redhat-appstudio-qe/junit2html v0.0.0-20231109125349-38cbded1193d
 	github.com/securego/gosec/v2 v2.18.2
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/sqs/goreturns v0.0.0-20231030191505-16fc3d8edd91
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
