@@ -1291,8 +1291,8 @@ github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 h1:TCg2WBOl
 github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727/go.mod h1:rlzQ04UMyJXu/aOvhd8qT+hvDrFpiwqp8MRXDY9szc0=
 github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 h1:M8mH9eK4OUR4lu7Gd+PU1fV2/qnDNfzT635KRSObncs=
 github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567/go.mod h1:DWNGW8A4Y+GyBgPuaQJuWiy0XYftx4Xm/y5Jqk9I6VQ=
-github.com/redhat-appstudio-qe/junit2html v0.0.0-20231109125349-38cbded1193d h1:Bav2zqIboggNMyVcoIO7P/gENKOx5Om9sb5HHYCJvuI=
-github.com/redhat-appstudio-qe/junit2html v0.0.0-20231109125349-38cbded1193d/go.mod h1:6ze5rUwXFKwSGpmFNyfH2+l5L5LiwfKs1jsGqgiol4o=
+github.com/redhat-appstudio-qe/junit2html v0.0.0-20231113100636-5b753bd2ee31 h1:Na4j4bGreDGEiCdZBCcDK8Ft5YBk3UoO+vsMduopeg8=
+github.com/redhat-appstudio-qe/junit2html v0.0.0-20231113100636-5b753bd2ee31/go.mod h1:6ze5rUwXFKwSGpmFNyfH2+l5L5LiwfKs1jsGqgiol4o=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
