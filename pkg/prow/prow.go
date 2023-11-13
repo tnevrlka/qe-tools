@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -71,7 +72,7 @@ func (as *ArtifactScanner) Run() error {
 			return fmt.Errorf("failed to iterate over storage objects: %+v", err)
 		}
 		fullArtifactName := attrs.Name
-		if slices.ContainsFunc(as.config.FileNameFilter, func(s string) bool { return strings.Contains(fullArtifactName, s) }) {
+		if as.isRequiredFile(fullArtifactName) {
 			klog.Infof("found required file %s", fullArtifactName)
 			// => e.g. [ "", "redhat-appstudio-e2e/artifacts/e2e-report.xml" ]
 			sp := strings.Split(fullArtifactName, objectPrefix)
@@ -83,6 +84,10 @@ func (as *ArtifactScanner) Run() error {
 			// => e.g. [ "redhat-appstudio-e2e", "artifacts", "e2e-report.xml" ]
 			sp = strings.Split(parentStepFilePath, "/")
 			parentStepName := sp[0]
+			// skip artifacts produced by this step that is used in CI
+			if parentStepName == reportStepName {
+				continue
+			}
 			fileName := sp[len(sp)-1]
 
 			rc, err := as.bucketHandle.Object(fullArtifactName).NewReader(ctx)
@@ -112,6 +117,13 @@ func (as *ArtifactScanner) Run() error {
 		}
 	}
 	return nil
+}
+
+func (as *ArtifactScanner) isRequiredFile(fullArtifactName string) bool {
+	return slices.ContainsFunc(as.config.FileNameFilter, func(s string) bool {
+		re := regexp.MustCompile(s)
+		return re.MatchString(fullArtifactName)
+	})
 }
 
 func getProwJobYAML(jobID string) (*v1.ProwJob, error) {

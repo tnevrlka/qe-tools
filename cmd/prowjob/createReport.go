@@ -26,7 +26,7 @@ import (
 const (
 	buildLogFilename = "build-log.txt"
 	finishedFilename = "finished.json"
-	junitFilename    = "e2e-report.xml"
+	junitFilename    = `/(j?unit|e2e).*\.xml`
 
 	gcsBrowserURLPrefix = "https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/origin-ci-test/"
 )
@@ -60,7 +60,7 @@ var createReportCmd = &cobra.Command{
 			return fmt.Errorf("failed to scan artifacts for prow job %s: %+v", jobID, err)
 		}
 
-		rhtapJunitSuites := &reporters.JUnitTestSuites{}
+		overallJUnitSuites := &reporters.JUnitTestSuites{}
 		openshiftCiJunit := reporters.JUnitTestSuite{Name: "openshift-ci job", Properties: reporters.JUnitProperties{Properties: []reporters.JUnitProperty{}}}
 
 		htmlReportLink := gcsBrowserURLPrefix + scanner.ObjectPrefix + "redhat-appstudio-report/artifacts/junit-summary.html"
@@ -93,9 +93,9 @@ var createReportCmd = &cobra.Command{
 						openshiftCiJunit.TestCases = append(openshiftCiJunit.TestCases, tc)
 					}
 					openshiftCiJunit.Tests++
-				} else if artifactFilename == junitFilename {
-					if err = xml.Unmarshal([]byte(artifact.Content), rhtapJunitSuites); err != nil {
-						return fmt.Errorf("cannot decode rhtap JUnit suite into xml %+v: %+v", rhtapJunitSuites, err)
+				} else if strings.Contains(string(artifactFilename), ".xml") {
+					if err = xml.Unmarshal([]byte(artifact.Content), overallJUnitSuites); err != nil {
+						klog.Errorf("cannot decode JUnit suite %q into xml: %+v", artifactFilename, err)
 					}
 				}
 			}
@@ -111,10 +111,10 @@ var createReportCmd = &cobra.Command{
 			return fmt.Errorf("failed to create directory for results '%s': %+v", artifactDir, err)
 		}
 
-		rhtapJunitSuites.TestSuites = append(rhtapJunitSuites.TestSuites, openshiftCiJunit)
-		rhtapJunitSuites.Failures += openshiftCiJunit.Failures
-		rhtapJunitSuites.Errors += openshiftCiJunit.Errors
-		rhtapJunitSuites.Tests += openshiftCiJunit.Tests
+		overallJUnitSuites.TestSuites = append(overallJUnitSuites.TestSuites, openshiftCiJunit)
+		overallJUnitSuites.Failures += openshiftCiJunit.Failures
+		overallJUnitSuites.Errors += openshiftCiJunit.Errors
+		overallJUnitSuites.Tests += openshiftCiJunit.Tests
 
 		generatedJunitFilepath := filepath.Clean(artifactDir + "/junit.xml")
 		outFile, err := os.Create(generatedJunitFilepath)
@@ -122,11 +122,11 @@ var createReportCmd = &cobra.Command{
 			return fmt.Errorf("cannot create file '%s': %+v", generatedJunitFilepath, err)
 		}
 
-		if err := xml.NewEncoder(bufio.NewWriter(outFile)).Encode(rhtapJunitSuites); err != nil {
-			return fmt.Errorf("cannot encode JUnit suites struct '%+v' into file located at '%s': %+v", rhtapJunitSuites, generatedJunitFilepath, err)
+		if err := xml.NewEncoder(bufio.NewWriter(outFile)).Encode(overallJUnitSuites); err != nil {
+			return fmt.Errorf("cannot encode JUnit suites struct '%+v' into file located at '%s': %+v", overallJUnitSuites, generatedJunitFilepath, err)
 		}
 
-		html, err := convert.Convert(rhtapJunitSuites)
+		html, err := convert.Convert(overallJUnitSuites)
 		if err != nil {
 			return fmt.Errorf("failed to convert junit suite to html: %+v", err)
 		}
