@@ -1,4 +1,4 @@
 sselvan, djodha, nshprai
 psturc, jinqi, tnevrlka
 nshprai, kalem, sselvan
-tnevrlka, chuo, jinqi
+jinqi, djodha, psturc
