@@ -9,6 +9,7 @@ import (
 
 	"github.com/redhat-appstudio/qe-tools/cmd/coffeebreak"
 	"github.com/redhat-appstudio/qe-tools/cmd/prowjob"
+	"github.com/redhat-appstudio/qe-tools/cmd/sendslackmessage"
 )
 
 var cfgFile string
@@ -43,6 +44,7 @@ func init() {
 
 	rootCmd.AddCommand(prowjob.ProwjobCmd)
 	rootCmd.AddCommand(coffeebreak.CoffeeBreakCmd)
+	rootCmd.AddCommand(sendslackmessage.SendSlackMessageCmd)
 }
 
 // initConfig reads in config file and ENV variables if set.
