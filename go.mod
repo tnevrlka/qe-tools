@@ -11,7 +11,7 @@ require (
 	github.com/mgechev/revive v1.3.4
 	github.com/onsi/ginkgo/v2 v2.13.1
 	github.com/orijtech/structslop v0.0.8
-	github.com/redhat-appstudio-qe/junit2html v0.0.0-20231113100636-5b753bd2ee31
+	github.com/redhat-appstudio-qe/junit2html v0.0.0-20231122104025-4c86e177eec8
 	github.com/securego/gosec/v2 v2.18.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
