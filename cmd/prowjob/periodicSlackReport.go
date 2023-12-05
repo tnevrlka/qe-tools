@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -12,12 +13,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// periodicReportCmd returns the periodic-report command
+// periodicSlackReportCmd returns the periodic-slack-report command
 var periodicSlackReportCmd = &cobra.Command{
-	Use:   "periodic-report",
-	Short: "Analyzes the build log from latest periodic job and returns failure summary",
+	Use:   "periodic-slack-report",
+	Short: "Analyzes the build log from latest periodic job and sends a summary of detected issues to dedicated Slack channel",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		requiredEnvVars := []string{"prow_url"}
+		requiredEnvVars := []string{"slack_token", "channel_id", "url", "prow_url"}
 
 		for _, e := range requiredEnvVars {
 			if viper.GetString(e) == "" {
@@ -50,82 +51,102 @@ func fetchTextContent(url string) (string, error) {
 	return string(bodyBytes), nil
 }
 
-func constructMessage(bodyString string) (string, bool) {
-	cleanBody := removeANSIEscapeSequences(bodyString)
+func sendMessageToLatestThread(token, channelID, message string) error {
+	slackURL := "https://slack.com/api/chat.postMessage"
 
-	if isJobFailed(cleanBody) {
-		message := "Test Suite Summary:\n"
-		message += extractTestResultsAndSummary(cleanBody)
-		message += extractDuration(cleanBody)
-		message += extractFailureSummary(cleanBody)
-		return message, false
+	payload := url.Values{}
+	payload.Set("channel", channelID)
+	payload.Set("text", message)
+
+	req, err := http.NewRequest("POST", slackURL, strings.NewReader(payload.Encode()))
+	if err != nil {
+		return fmt.Errorf("error creating the request: %w", err)
 	}
-	return "Job Succeeded", true
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error sending the request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	return nil
 }
 
-func isJobFailed(body string) bool {
-	stateRegexp := regexp.MustCompile(`Reporting job state '(\w+)'`)
-	stateMatches := stateRegexp.FindStringSubmatch(body)
+func constructMessage(content, bodyString string) (string, bool) {
+	var message string
+	const statePattern = `Reporting job state '(\w+)'`
+	const failurePattern = `(?s)(Summarizing.*?Test Suite Failed)`
+	const durationPattern = `Ran for ([\dhms]+)`
 
-	return len(stateMatches) == 2 && stateMatches[1] == "failed"
-}
+	stateRegexp := regexp.MustCompile(statePattern)
+	stateMatches := stateRegexp.FindStringSubmatch(bodyString)
 
-func extractFailureSummary(body string) string {
-	failureMatches := regexp.MustCompile(`(?s)(Summarizing.*?Test Suite Failed)`).FindStringSubmatch(body)
-
-	if failureMatches == nil && isJobFailed(removeANSIEscapeSequences(body)) {
-		return ""
+	hasFailed := len(stateMatches) == 2 && stateMatches[1] == "failed"
+	if !hasFailed {
+		return "", false
 	}
 
-	return formatFailures(failureMatches[1]) + "\n"
-}
+	failureRegexp := regexp.MustCompile(failurePattern)
+	failureMatches := failureRegexp.FindStringSubmatch(bodyString)
 
-func extractTestResultsAndSummary(body string) string {
-	pattern := `Ran (\d+) of (\d+) Specs in ([\d.]+) seconds\nFAIL! -- (\d+) Passed \| (\d+) Failed \| (\d+) Pending \| (\d+) Skipped`
-	matches := regexp.MustCompile(pattern).FindStringSubmatch(body)
-
-	if matches == nil {
-		return "Infrastructure setup issues or failures unrelated to tests were found\n"
+	failureSummary := ""
+	if failureMatches == nil {
+		failureSummary = "Infrastructure setup issues or failures unrelated to tests were found. No report of test failures was produced. \n"
+	} else {
+		failureSummary = removeANSIEscapeSequences(failureMatches[1]) + "\n"
 	}
 
-	return fmt.Sprintf("Test Results: %s Passed | %s Failed | %s Pending | %s Skipped\nRan %s of %s Specs in %s seconds\n",
-		matches[1], matches[2], matches[3], matches[4], matches[5], matches[6], matches[7])
-}
+	message += failureSummary
+	message += fmt.Sprintf("Reporting job state: %s\n", strings.TrimSpace(stateMatches[1]))
 
-func extractDuration(body string) string {
-	matches := regexp.MustCompile(`Ran for ([\dhms]+)`).FindStringSubmatch(body)
-	if matches == nil {
-		return ""
-	}
-	return fmt.Sprintf("Total Duration: %s\n", matches[1])
-}
+	durationRegexp := regexp.MustCompile(durationPattern)
+	durationMatches := durationRegexp.FindStringSubmatch(bodyString)
 
-func formatFailures(failures string) string {
-	var formattedFailures strings.Builder
-	formattedFailures.WriteString("Failures:\n")
-
-	for _, line := range strings.Split(failures, "\n") {
-		if strings.Contains(line, "[FAIL]") {
-			formattedFailures.WriteString("- " + strings.TrimSpace(line) + "\n")
-		}
+	if len(durationMatches) >= 2 {
+		message += fmt.Sprintf("Ran for %s\n", durationMatches[1])
 	}
 
-	if formattedFailures.String() == "Failures:\n" {
-		return "No specific failures captured in the report.\n"
-	}
-
-	return formattedFailures.String()
+	return message, true
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	// Required build.log PATH for latest build
-	prowURL := os.Getenv("PROW_URL")
+	token := os.Getenv("SLACK_TOKEN")
+	channelID := os.Getenv("CHANNEL_ID")
+
+	url := os.Getenv("URL")
+	content, err := fetchTextContent(url)
+	if err != nil {
+		return err
+	}
+
+	prowURL := fmt.Sprintf(os.Getenv("PROW_URL"), content)
 	bodyString, err := fetchTextContent(prowURL)
 	if err != nil {
 		return err
 	}
 
-	message, _ := constructMessage(bodyString)
+	message, sendSlackMessage := constructMessage(content, bodyString)
+
 	fmt.Println(message)
+
+	if sendSlackMessage {
+		err = sendMessageToLatestThread(token, channelID, message)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Slack message sent successfully!")
+	} else {
+		fmt.Println("No test failures found. Slack message not sent.")
+	}
 	return nil
 }

@@ -1,0 +1,26 @@
+name: Prow-CI
+
+on:
+  schedule:
+    - cron: '30 3 * * *'  # Runs every day at 3:30 AM UTC (9 AM IST)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: 
+      image: golang:1.19
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Setup Go environment
+      uses: actions/setup-go@v4
+
+    - name: Run Test and Send Slack Message
+      run: go run main.go prowjob periodic-slack-report
+      env:
+        SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+        URL: ${{ secrets.URL }}
+        PROW_URL: ${{ secrets.PROW_URL }}
+        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
