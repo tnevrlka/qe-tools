@@ -3,6 +3,7 @@ name: Prow-CI
 on:
   schedule:
     - cron: '30 3 * * *'  # Runs every day at 3:30 AM UTC (9 AM IST)
+  workflow_dispatch:
 
 jobs:
   build:
