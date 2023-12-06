@@ -4,24 +4,36 @@ on:
   schedule:
     - cron: '30 3 * * *'  # Runs every day at 3:30 AM UTC (9 AM IST)
   workflow_dispatch:
+    inputs:
+      channel_id:
+        description: 'Channel ID'
+        required: true
+      slack_token:
+        description: 'Slack Token'
+        required: false
+      prow_url:
+        description: 'Prow URL'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: 
-      image: golang:1.19
+      image: golang:1.20
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Setup Go environment
-      uses: actions/setup-go@v4
+      - name: Setup Go environment
+        uses: actions/setup-go@v4
 
-    - name: Run Test and Send Slack Message
-      run: go run main.go prowjob periodic-slack-report
-      env:
-        SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        URL: ${{ secrets.URL }}
-        PROW_URL: ${{ secrets.PROW_URL }}
-        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+      - name: Run Test and Store Output
+        run: go run main.go prowjob periodic-report > prowjob-output.txt
+
+      - name: Send Slack Message
+        run: go run main.go send-slack-message -m "$(cat prowjob-output.txt)"
+        env:
+          SLACK_TOKEN: ${{ inputs.slack_token || secrets.SLACK_TOKEN }}
+          PROW_URL: ${{ inputs.prow_url || secrets.PROW_URL }}
+          CHANNEL_ID: ${{ inputs.channel_id || secrets.CHANNEL_ID }}
