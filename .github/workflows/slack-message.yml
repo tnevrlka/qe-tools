@@ -34,6 +34,7 @@ jobs:
       - name: Send Slack Message
         run: go run main.go send-slack-message -m "$(cat prowjob-output.txt)"
         env:
-          SLACK_TOKEN: ${{ inputs.slack_token || secrets.SLACK_TOKEN }}
-          PROW_URL: ${{ inputs.prow_url || secrets.PROW_URL }}
-          CHANNEL_ID: ${{ inputs.channel_id || secrets.CHANNEL_ID }}
+          SLACK_TOKEN: ${{ inputs.slack_token != '' && inputs.slack_token || secrets.SLACK_TOKEN }}
+          PROW_URL: ${{ inputs.prow_url != '' && inputs.prow_url || secrets.PROW_URL }}
+          CHANNEL_ID: ${{ inputs.channel_id != '' && inputs.channel_id || secrets.CHANNEL_ID }}
+
