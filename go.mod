@@ -3,7 +3,7 @@ module github.com/redhat-appstudio/qe-tools
 go 1.19
 
 require (
-	cloud.google.com/go/storage v1.35.1
+	cloud.google.com/go/storage v1.36.0
 	github.com/GoogleCloudPlatform/testgrid v0.0.168
 	github.com/daixiang0/gci v0.12.0
 	github.com/go-critic/go-critic v0.10.0
