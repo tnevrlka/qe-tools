@@ -16,7 +16,7 @@ require (
 	github.com/securego/gosec/v2 v2.18.2
 	github.com/slack-go/slack v0.12.3
 	github.com/spf13/cobra v1.8.0
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
 	github.com/sqs/goreturns v0.0.0-20231030191505-16fc3d8edd91
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
