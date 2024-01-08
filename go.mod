@@ -9,7 +9,7 @@ require (
 	github.com/go-critic/go-critic v0.10.0
 	github.com/google/go-github/v56 v56.0.0
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
-	github.com/mgechev/revive v1.3.4
+	github.com/mgechev/revive v1.3.6
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/orijtech/structslop v0.0.8
 	github.com/redhat-appstudio-qe/junit2html v0.0.0-20231122104025-4c86e177eec8
@@ -50,7 +50,7 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -96,7 +96,7 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mgechev/dots v0.0.0-20210922191527-e955255bf517 // indirect
