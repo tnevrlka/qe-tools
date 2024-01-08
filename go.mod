@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/storage v1.36.0
 	github.com/GoogleCloudPlatform/testgrid v0.0.168
 	github.com/daixiang0/gci v0.12.1
-	github.com/go-critic/go-critic v0.10.0
+	github.com/go-critic/go-critic v0.11.0
 	github.com/google/go-github/v56 v56.0.0
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
 	github.com/mgechev/revive v1.3.6
