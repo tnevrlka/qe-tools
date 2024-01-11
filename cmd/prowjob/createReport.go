@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
-	"github.com/redhat-appstudio/qe-tools/pkg/customjunit"
-	"github.com/redhat-appstudio/qe-tools/pkg/types"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/redhat-appstudio/qe-tools/pkg/customjunit"
+	"github.com/redhat-appstudio/qe-tools/pkg/types"
 
 	"github.com/GoogleCloudPlatform/testgrid/metadata"
 	"github.com/redhat-appstudio/qe-tools/pkg/prow"
@@ -168,9 +169,9 @@ var createReportCmd = &cobra.Command{
 }
 
 func readXMLFile(xmlPath string, result any) error {
-	xmlFile, err := os.Open(xmlPath)
+	xmlFile, err := os.Open(filepath.Clean(xmlPath))
 	if err != nil {
-		return fmt.Errorf("Could not open file '%s', error: %v\n", xmlPath, err)
+		return fmt.Errorf("could not open file '%s', error: %v", xmlPath, err)
 	}
 	defer xmlFile.Close()
 
