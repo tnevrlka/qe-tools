@@ -1,4 +1,4 @@
-package prowjob
+package webhook
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ var (
 )
 
 var reportPortalWebhookCmd = &cobra.Command{
-	Use: "rp-webhook",
+	Use: "report-portal",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if jobType == "" {
 			return fmt.Errorf("parameter '%s' and env var '%s' is empty", jobTypeParamName, jobTypeEnv)

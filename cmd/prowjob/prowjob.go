@@ -27,7 +27,6 @@ func init() {
 	ProwjobCmd.AddCommand(periodicReportCmd)
 	ProwjobCmd.AddCommand(createReportCmd)
 	ProwjobCmd.AddCommand(healthCheckCmd)
-	ProwjobCmd.AddCommand(reportPortalWebhookCmd)
 
 	createReportCmd.Flags().StringVar(&artifactDir, types.ArtifactDirParamName, "", "Path to the folder where to store produced files")
 	healthCheckCmd.Flags().StringVar(&artifactDir, types.ArtifactDirParamName, "", "Path to the folder where to store produced files")
