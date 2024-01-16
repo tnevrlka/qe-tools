@@ -3,75 +3,77 @@ package webhook
 import (
 	"fmt"
 	"github.com/redhat-appstudio/qe-tools/pkg/prow"
+	"github.com/redhat-appstudio/qe-tools/pkg/types"
 	"github.com/redhat-appstudio/qe-tools/pkg/webhook"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
 	"os"
-	"strings"
 )
 
 // AppStudio QE webhook configuration values will be used by default (if none are provided via env vars)
 const (
 	appstudioQESaltSecret       = "123456789"
 	appstudioQEWebhookTargetURL = "https://hook.pipelinesascode.com/EyFYTakxEgEy"
-
-	jobTypeParamName          = "job-type"
-	jobNameParamName          = "job-name"
-	repoOwnerParamName        = "repo-owner"
-	repoNameParamName         = "repo-name"
-	prNumberParamName         = "pr-number"
-	saltSecretParamName       = "salt-secret"
-	webhookTargetUrlParamName = "target-url"
-	jobSpecParamName          = "job-spec"
-
-	jobTypeEnv          = "JOB_TYPE"
-	jobNameEnv          = "JOB_NAME"
-	repoOwnerEnv        = "REPO_OWNER"
-	repoNameEnv         = "REPO_NAME"
-	prNumberEnv         = "PULL_NUMBER"
-	saltSecretEnv       = "WEBHOOK_SALT_SECRET"
-	webhookTargetUrlEnv = "WEBHOOK_TARGET_URL"
-	jobSpecEnv          = "JOB_SPEC"
 )
 
 var (
-	openshiftJobSpec *prow.OpenshiftJobSpec
-	jobType          string
-	jobName          string
-	repoOwner        string
-	repoName         string
-	prNumber         string
-	saltSecret       string
-	webhookTargetUrl string
-	jobSpec          string
+	openshiftJobSpec   *prow.OpenshiftJobSpec
+	requiredParameters = []types.Parameter{jobType, jobName, repoOwner, repoName, prNumber, saltSecret, webhookTargetUrl, jobSpec}
+	jobType            = types.Parameter{
+		Name:  "job-type",
+		Env:   "JOB_TYPE",
+		Usage: "Type of the job",
+	}
+	jobName = types.Parameter{
+		Name:  "job-name",
+		Env:   "JOB_NAME",
+		Usage: "Name of the job",
+	}
+	repoOwner = types.Parameter{
+		Name:  "repo-owner",
+		Env:   "REPO_OWNER",
+		Usage: "Owner of the repository",
+	}
+	repoName = types.Parameter{
+		Name:  "repo-name",
+		Env:   "REPO_OWNER",
+		Usage: "Name of the repository",
+	}
+	prNumber = types.Parameter{
+		Name:  "pr-number",
+		Env:   "PR_NUMBER",
+		Usage: "Number of the pull request",
+	}
+	saltSecret = types.Parameter{
+		Name:         "salt-secret",
+		Env:          "SALT_SECRET",
+		DefaultValue: appstudioQESaltSecret,
+		Usage:        "Salt for webhook config",
+	}
+	webhookTargetUrl = types.Parameter{
+		Name:         "target-url",
+		Env:          "TARGET_URL",
+		DefaultValue: appstudioQEWebhookTargetURL,
+		Usage:        "Target URL for webhook",
+	}
+	jobSpec = types.Parameter{
+		Name:  "job-spec",
+		Env:   "JOB_SPEC",
+		Usage: "Job spec",
+	}
 )
 
 var reportPortalWebhookCmd = &cobra.Command{
 	Use: "report-portal",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if jobType == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", jobTypeParamName, jobTypeEnv)
-
+		for _, reqParam := range requiredParameters {
+			if reqParam.Value == "" {
+				return fmt.Errorf("parameter '%s' and env var '%s' is empty", reqParam.Name, reqParam.Env)
+			}
 		}
-		if jobName == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", jobNameParamName, jobNameEnv)
-		}
-		if repoOwner == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", repoOwnerParamName, repoOwnerEnv)
-		}
-		if repoName == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", repoNameParamName, repoNameEnv)
-		}
-		if prNumber == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", prNumberParamName, prNumberEnv)
-		}
-		if jobSpec == "" {
-			return fmt.Errorf("parameter '%s' and env var '%s' is empty", jobSpecParamName, jobSpecEnv)
-		}
-
 		var err error
-		openshiftJobSpec, err = prow.ParseJobSpec(jobSpec)
+		openshiftJobSpec, err = prow.ParseJobSpec(jobSpec.Value)
 		if err != nil {
 			return fmt.Errorf("error parsing openshift job spec: %+v", err)
 		}
@@ -79,19 +81,12 @@ var reportPortalWebhookCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var repoURL string
-
-		if strings.Contains(jobName, "hacbs-e2e-periodic") {
-			// TODO configure webhook channel for sending HACBS test results
-			klog.Infof("not sending webhook for HACBS periodic job yet")
-			return nil
-		}
-
-		if jobType == "periodic" {
+		if jobType.Value == "periodic" {
 			repoURL = "https://github.com/redhat-appstudio/infra-deployments"
-			repoOwner = "redhat-appstudio"
-			repoName = "infra-deployments"
-			prNumber = "periodic"
-		} else if repoName == "e2e-tests" || repoName == "infra-deployments" {
+			repoOwner.Value = "redhat-appstudio"
+			repoName.Value = "infra-deployments"
+			prNumber.Value = "periodic"
+		} else if repoName.Value == "e2e-tests" || repoName.Value == "infra-deployments" {
 			repoURL = openshiftJobSpec.Refs.RepoLink
 		} else {
 			klog.Infof("sending webhook for jobType %s, jobName %s is not supported", jobType, jobName)
@@ -107,11 +102,11 @@ var reportPortalWebhookCmd = &cobra.Command{
 			Path: path,
 			Repository: webhook.Repository{
 				FullName:   fmt.Sprintf("%s/%s", repoOwner, repoName),
-				PullNumber: prNumber,
+				PullNumber: prNumber.Value,
 			},
 			RepositoryURL: repoURL,
 		}
-		resp, err := wh.CreateAndSend(saltSecret, webhookTargetUrl)
+		resp, err := wh.CreateAndSend(saltSecret.Value, webhookTargetUrl.Value)
 		if err != nil {
 			return fmt.Errorf("error sending webhook: %+v", err)
 		}
@@ -122,30 +117,9 @@ var reportPortalWebhookCmd = &cobra.Command{
 }
 
 func init() {
-	reportPortalWebhookCmd.Flags().StringVar(&jobType, jobTypeParamName, "", "Type of the job")
-	reportPortalWebhookCmd.Flags().StringVar(&jobName, jobNameParamName, "", "Name of the job")
-	reportPortalWebhookCmd.Flags().StringVar(&repoOwner, repoOwnerParamName, "", "Owner of the repository")
-	reportPortalWebhookCmd.Flags().StringVar(&repoName, repoNameParamName, "", "Name of the repository")
-	reportPortalWebhookCmd.Flags().StringVar(&prNumber, prNumberParamName, "", "Number of the pull request")
-	reportPortalWebhookCmd.Flags().StringVar(&saltSecret, saltSecretParamName, appstudioQESaltSecret, "Salt for webhook config")
-	reportPortalWebhookCmd.Flags().StringVar(&webhookTargetUrl, webhookTargetUrlParamName, appstudioQEWebhookTargetURL, "Target URL for webhook")
-	reportPortalWebhookCmd.Flags().StringVar(&jobSpec, jobSpecParamName, "", "Job spec")
-
-	_ = viper.BindEnv(jobTypeParamName, jobTypeEnv)
-	_ = viper.BindEnv(jobNameParamName, jobNameEnv)
-	_ = viper.BindEnv(repoOwnerParamName, repoOwnerEnv)
-	_ = viper.BindEnv(repoNameParamName, repoNameEnv)
-	_ = viper.BindEnv(prNumberParamName, prNumberEnv)
-	_ = viper.BindEnv(saltSecretParamName, saltSecretEnv)
-	_ = viper.BindEnv(webhookTargetUrlParamName, webhookTargetUrlEnv)
-	_ = viper.BindEnv(jobSpecParamName, jobSpecEnv)
-
-	jobType = viper.GetString(jobTypeParamName)
-	jobName = viper.GetString(jobNameParamName)
-	repoOwner = viper.GetString(repoOwnerParamName)
-	repoName = viper.GetString(repoNameParamName)
-	prNumber = viper.GetString(prNumberParamName)
-	saltSecret = viper.GetString(saltSecretParamName)
-	webhookTargetUrl = viper.GetString(webhookTargetUrlParamName)
-	jobSpec = viper.GetString(jobSpecParamName)
+	for _, reqParam := range requiredParameters {
+		reportPortalWebhookCmd.Flags().StringVar(&reqParam.Value, reqParam.Name, reqParam.DefaultValue, reqParam.Usage)
+		_ = viper.BindEnv(reqParam.Name, reqParam.Env)
+		reqParam.Value = viper.GetString(reqParam.Name)
+	}
 }
