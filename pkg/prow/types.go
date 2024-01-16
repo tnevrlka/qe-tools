@@ -31,8 +31,9 @@ type ArtifactScanner struct {
 // ScannerConfig contains fields required
 // for scaning files with ArtifactScanner
 type ScannerConfig struct {
-	ProwJobID      string
 	FileNameFilter []string
+	ProwJobID      string
+	StepsToSkip    []string
 }
 
 // ArtifactStepName represents the openshift-ci step name

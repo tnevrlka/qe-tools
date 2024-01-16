@@ -27,7 +27,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var formatReportPortal bool
+var (
+	formatReportPortal bool
+	stepsToSkip        []string
+)
 
 const (
 	buildLogFilename = "build-log.txt"
@@ -36,6 +39,7 @@ const (
 	gcsBrowserURLPrefix = "https://gcsweb-ci.apps.ci.l2s4.p1.openshiftapps.com/gcs/origin-ci-test/"
 
 	reportPortalFormatParamName = "report-portal-format"
+	stepsToSkipParamName        = "skip-ci-steps"
 )
 
 // createReportCmd represents the createReport command
@@ -51,11 +55,13 @@ var createReportCmd = &cobra.Command{
 	},
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		jobID := viper.GetString(types.ProwJobIDParamName)
+		prowJobID = viper.GetString(types.ProwJobIDParamName)
+		stepsToSkip = viper.GetStringSlice(stepsToSkipParamName)
 
 		cfg := prow.ScannerConfig{
-			ProwJobID:      jobID,
+			ProwJobID:      prowJobID,
 			FileNameFilter: []string{finishedFilename, buildLogFilename, types.JunitFilename},
+			StepsToSkip:    stepsToSkip,
 		}
 
 		scanner, err := prow.NewArtifactScanner(cfg)
@@ -64,7 +70,7 @@ var createReportCmd = &cobra.Command{
 		}
 
 		if err := scanner.Run(); err != nil {
-			return fmt.Errorf("failed to scan artifacts for prow job %s: %+v", jobID, err)
+			return fmt.Errorf("failed to scan artifacts for prow job %s: %+v", prowJobID, err)
 		}
 
 		overallJUnitSuites := &reporters.JUnitTestSuites{}
@@ -110,7 +116,7 @@ var createReportCmd = &cobra.Command{
 
 		artifactDir := viper.GetString(types.ArtifactDirParamName)
 		if artifactDir == "" {
-			artifactDir = "./tmp/" + jobID
+			artifactDir = "./tmp/" + prowJobID
 			klog.Warningf("path to artifact dir was not provided - using default %q\n", artifactDir)
 		}
 
@@ -205,10 +211,12 @@ func changeDisabledToSkipped(original *reporters.JUnitTestSuites, custom *custom
 func init() {
 	createReportCmd.Flags().StringVar(&prowJobID, types.ProwJobIDParamName, "", "Prow job ID to analyze")
 	createReportCmd.Flags().BoolVar(&formatReportPortal, reportPortalFormatParamName, false, "Format for Report Portal")
+	createReportCmd.Flags().StringArrayVar(&stepsToSkip, stepsToSkipParamName, []string{"redhat-appstudio-report"}, "List of CI steps to skip when gathering artifacts")
 
 	_ = viper.BindPFlag(types.ArtifactDirParamName, createReportCmd.Flags().Lookup(types.ArtifactDirParamName))
 	_ = viper.BindPFlag(types.ProwJobIDParamName, createReportCmd.Flags().Lookup(types.ProwJobIDParamName))
 	_ = viper.BindPFlag(reportPortalFormatParamName, createReportCmd.Flags().Lookup(reportPortalFormatParamName))
+	_ = viper.BindPFlag(stepsToSkipParamName, createReportCmd.Flags().Lookup(stepsToSkipParamName))
 	// Bind environment variables to viper (in case the associated command's parameter is not provided)
 	_ = viper.BindEnv(types.ProwJobIDParamName, types.ProwJobIDEnv)
 	_ = viper.BindEnv(types.ArtifactDirParamName, types.ArtifactDirEnv)
