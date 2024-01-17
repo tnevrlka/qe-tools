@@ -86,5 +86,4 @@ func init() {
 		viper.SetDefault(parameter.Name, parameter.DefaultValue)
 		parameter.Value = viper.GetString(parameter.Name)
 	}
-	return
 }
