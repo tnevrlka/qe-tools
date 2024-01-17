@@ -84,10 +84,12 @@ func (as *ArtifactScanner) Run() error {
 			// => e.g. [ "redhat-appstudio-e2e", "artifacts", "e2e-report.xml" ]
 			sp = strings.Split(parentStepFilePath, "/")
 			parentStepName := sp[0]
-			// skip artifacts produced by this step that is used in CI
-			if parentStepName == reportStepName {
+
+			if slices.Contains(as.config.StepsToSkip, parentStepName) {
+				klog.Infof("skipping step name %s", parentStepName)
 				continue
 			}
+
 			fileName := sp[len(sp)-1]
 
 			rc, err := as.bucketHandle.Object(fullArtifactName).NewReader(ctx)
