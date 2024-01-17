@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
 	"os"
+	"strconv"
 )
 
 // AppStudio QE webhook configuration values will be used by default (if none are provided via env vars)
@@ -18,34 +19,9 @@ const (
 )
 
 var (
-	openshiftJobSpec   *prow.OpenshiftJobSpec
-	requiredParameters = []types.CmdParameter[string]{jobType, jobName, repoOwner, repoName, prNumber, saltSecret, webhookTargetUrl, jobSpec}
-	jobType            = types.CmdParameter[string]{
-		Name:  "job-type",
-		Env:   "JOB_TYPE",
-		Usage: "Type of the job",
-	}
-	jobName = types.CmdParameter[string]{
-		Name:  "job-name",
-		Env:   "JOB_NAME",
-		Usage: "Name of the job",
-	}
-	repoOwner = types.CmdParameter[string]{
-		Name:  "repo-owner",
-		Env:   "REPO_OWNER",
-		Usage: "Owner of the repository",
-	}
-	repoName = types.CmdParameter[string]{
-		Name:  "repo-name",
-		Env:   "REPO_OWNER",
-		Usage: "Name of the repository",
-	}
-	prNumber = types.CmdParameter[string]{
-		Name:  "pr-number",
-		Env:   "PR_NUMBER",
-		Usage: "Number of the pull request",
-	}
-	saltSecret = types.CmdParameter[string]{
+	openshiftJobSpec *prow.OpenshiftJobSpec
+	parameters       = []types.CmdParameter[string]{saltSecret, webhookTargetUrl, jobSpec}
+	saltSecret       = types.CmdParameter[string]{
 		Name:         "salt-secret",
 		Env:          "SALT_SECRET",
 		DefaultValue: appstudioQESaltSecret,
@@ -67,11 +43,6 @@ var (
 var reportPortalWebhookCmd = &cobra.Command{
 	Use: "report-portal",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		for _, reqParam := range requiredParameters {
-			if reqParam.Value == "" {
-				return fmt.Errorf("parameter '%s' and env var '%s' is empty", reqParam.Name, reqParam.Env)
-			}
-		}
 		var err error
 		openshiftJobSpec, err = prow.ParseJobSpec(jobSpec.Value)
 		if err != nil {
@@ -80,16 +51,13 @@ var reportPortalWebhookCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var repoURL string
-		if jobType.Value == "periodic" {
-			repoURL = "https://github.com/redhat-appstudio/infra-deployments"
-			repoOwner.Value = "redhat-appstudio"
-			repoName.Value = "infra-deployments"
-			prNumber.Value = "periodic"
-		} else if repoName.Value == "e2e-tests" || repoName.Value == "infra-deployments" {
-			repoURL = openshiftJobSpec.Refs.RepoLink
+		pullNumber := ""
+		if openshiftJobSpec.Type == "periodic" {
+			openshiftJobSpec.Refs.RepoLink = "https://github.com/redhat-appstudio/infra-deployments"
+		} else if (openshiftJobSpec.Refs.Repo == "e2e-tests" || openshiftJobSpec.Refs.Repo == "infra-deployments") && len(openshiftJobSpec.Refs.Pulls) > 0 {
+			pullNumber = strconv.Itoa(openshiftJobSpec.Refs.Pulls[0].Number)
 		} else {
-			klog.Infof("sending webhook for jobType %s, jobName %s is not supported", jobType, jobName)
+			klog.Infof("sending webhook for jobType %s, jobName %s is not supported", openshiftJobSpec.Type, openshiftJobSpec.Job)
 			return nil
 		}
 
@@ -101,10 +69,10 @@ var reportPortalWebhookCmd = &cobra.Command{
 		wh := webhook.Webhook{
 			Path: path,
 			Repository: webhook.Repository{
-				FullName:   fmt.Sprintf("%s/%s", repoOwner, repoName),
-				PullNumber: prNumber.Value,
+				FullName:   fmt.Sprintf("%s/%s", openshiftJobSpec.Refs.Organization, openshiftJobSpec.Refs.Repo),
+				PullNumber: pullNumber,
 			},
-			RepositoryURL: repoURL,
+			RepositoryURL: openshiftJobSpec.Refs.RepoLink,
 		}
 		resp, err := wh.CreateAndSend(saltSecret.Value, webhookTargetUrl.Value)
 		if err != nil {
@@ -117,9 +85,9 @@ var reportPortalWebhookCmd = &cobra.Command{
 }
 
 func init() {
-	for _, reqParam := range requiredParameters {
-		reportPortalWebhookCmd.Flags().StringVar(&reqParam.Value, reqParam.Name, reqParam.DefaultValue, reqParam.Usage)
-		_ = viper.BindEnv(reqParam.Name, reqParam.Env)
-		reqParam.Value = viper.GetString(reqParam.Name)
+	for _, parameter := range parameters {
+		reportPortalWebhookCmd.Flags().StringVar(&parameter.Value, parameter.Name, parameter.DefaultValue, parameter.Usage)
+		_ = viper.BindEnv(parameter.Name, parameter.Env)
+		parameter.Value = viper.GetString(parameter.Name)
 	}
 }

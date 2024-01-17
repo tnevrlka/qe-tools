@@ -52,7 +52,9 @@ type Artifact struct {
 }
 
 type OpenshiftJobSpec struct {
-	Refs Refs `json:"refs"`
+	Type string `json:"type"`
+	Job  string `json:"job"`
+	Refs Refs   `json:"refs"`
 }
 type Refs struct {
 	RepoLink     string `json:"repo_link"`
