@@ -19,45 +19,45 @@ const (
 
 var (
 	openshiftJobSpec   *prow.OpenshiftJobSpec
-	requiredParameters = []types.Parameter{jobType, jobName, repoOwner, repoName, prNumber, saltSecret, webhookTargetUrl, jobSpec}
-	jobType            = types.Parameter{
+	requiredParameters = []types.CmdParameter[string]{jobType, jobName, repoOwner, repoName, prNumber, saltSecret, webhookTargetUrl, jobSpec}
+	jobType            = types.CmdParameter[string]{
 		Name:  "job-type",
 		Env:   "JOB_TYPE",
 		Usage: "Type of the job",
 	}
-	jobName = types.Parameter{
+	jobName = types.CmdParameter[string]{
 		Name:  "job-name",
 		Env:   "JOB_NAME",
 		Usage: "Name of the job",
 	}
-	repoOwner = types.Parameter{
+	repoOwner = types.CmdParameter[string]{
 		Name:  "repo-owner",
 		Env:   "REPO_OWNER",
 		Usage: "Owner of the repository",
 	}
-	repoName = types.Parameter{
+	repoName = types.CmdParameter[string]{
 		Name:  "repo-name",
 		Env:   "REPO_OWNER",
 		Usage: "Name of the repository",
 	}
-	prNumber = types.Parameter{
+	prNumber = types.CmdParameter[string]{
 		Name:  "pr-number",
 		Env:   "PR_NUMBER",
 		Usage: "Number of the pull request",
 	}
-	saltSecret = types.Parameter{
+	saltSecret = types.CmdParameter[string]{
 		Name:         "salt-secret",
 		Env:          "SALT_SECRET",
 		DefaultValue: appstudioQESaltSecret,
 		Usage:        "Salt for webhook config",
 	}
-	webhookTargetUrl = types.Parameter{
+	webhookTargetUrl = types.CmdParameter[string]{
 		Name:         "target-url",
 		Env:          "TARGET_URL",
 		DefaultValue: appstudioQEWebhookTargetURL,
 		Usage:        "Target URL for webhook",
 	}
-	jobSpec = types.Parameter{
+	jobSpec = types.CmdParameter[string]{
 		Name:  "job-spec",
 		Env:   "JOB_SPEC",
 		Usage: "Job spec",
