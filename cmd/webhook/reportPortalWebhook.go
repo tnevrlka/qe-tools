@@ -12,31 +12,25 @@ import (
 	"strconv"
 )
 
-// AppStudio QE webhook configuration values will be used by default (if none are provided via env vars)
-const (
-	appstudioQESaltSecret       = "123456789"
-	appstudioQEWebhookTargetURL = "https://hook.pipelinesascode.com/EyFYTakxEgEy"
-)
-
 var (
 	openshiftJobSpec *prow.OpenshiftJobSpec
-	parameters       = []types.CmdParameter[string]{saltSecret, webhookTargetUrl, jobSpec}
-	saltSecret       = types.CmdParameter[string]{
-		Name:         "salt-secret",
-		Env:          "SALT_SECRET",
-		DefaultValue: appstudioQESaltSecret,
-		Usage:        "Salt for webhook config",
-	}
-	webhookTargetUrl = types.CmdParameter[string]{
-		Name:         "target-url",
-		Env:          "TARGET_URL",
-		DefaultValue: appstudioQEWebhookTargetURL,
-		Usage:        "Target URL for webhook",
-	}
-	jobSpec = types.CmdParameter[string]{
+	parameters       = []*types.CmdParameter[string]{jobSpec, saltSecret, webhookTargetUrl}
+	jobSpec          = &types.CmdParameter[string]{
 		Name:  "job-spec",
 		Env:   "JOB_SPEC",
 		Usage: "Job spec",
+	}
+	saltSecret = &types.CmdParameter[string]{
+		Name:         "salt-secret",
+		Env:          "SALT_SECRET",
+		DefaultValue: "123456789",
+		Usage:        "Salt for webhook config",
+	}
+	webhookTargetUrl = &types.CmdParameter[string]{
+		Name:         "target-url",
+		Env:          "TARGET_URL",
+		DefaultValue: "https://hook.pipelinesascode.com/EyFYTakxEgEy",
+		Usage:        "Target URL for webhook",
 	}
 )
 
@@ -74,6 +68,7 @@ var reportPortalWebhookCmd = &cobra.Command{
 			},
 			RepositoryURL: openshiftJobSpec.Refs.RepoLink,
 		}
+
 		resp, err := wh.CreateAndSend(saltSecret.Value, webhookTargetUrl.Value)
 		if err != nil {
 			return fmt.Errorf("error sending webhook: %+v", err)
@@ -88,6 +83,8 @@ func init() {
 	for _, parameter := range parameters {
 		reportPortalWebhookCmd.Flags().StringVar(&parameter.Value, parameter.Name, parameter.DefaultValue, parameter.Usage)
 		_ = viper.BindEnv(parameter.Name, parameter.Env)
+		viper.SetDefault(parameter.Name, parameter.DefaultValue)
 		parameter.Value = viper.GetString(parameter.Name)
 	}
+	return
 }
