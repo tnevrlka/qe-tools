@@ -46,7 +46,7 @@ var reportPortalWebhookCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pullNumber := ""
-		if openshiftJobSpec.Type == "periodic" {
+		if openshiftJobSpec.Type == "periodic" || openshiftJobSpec.Type == "presubmit" {
 			openshiftJobSpec.Refs.RepoLink = "https://github.com/redhat-appstudio/infra-deployments"
 		} else if (openshiftJobSpec.Refs.Repo == "e2e-tests" || openshiftJobSpec.Refs.Repo == "infra-deployments") && len(openshiftJobSpec.Refs.Pulls) > 0 {
 			pullNumber = strconv.Itoa(openshiftJobSpec.Refs.Pulls[0].Number)
