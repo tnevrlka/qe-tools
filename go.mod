@@ -23,7 +23,7 @@ require (
 	golang.org/x/tools v0.17.0
 	google.golang.org/api v0.155.0
 	honnef.co/go/tools v0.4.6
-	k8s.io/klog/v2 v2.120.0
+	k8s.io/klog/v2 v2.120.1
 	k8s.io/test-infra v0.0.0-20231026093210-34e553baa873
 	mvdan.cc/gofumpt v0.5.0
 	sigs.k8s.io/yaml v1.4.0
