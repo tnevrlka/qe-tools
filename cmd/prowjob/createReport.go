@@ -129,6 +129,16 @@ var createReportCmd = &cobra.Command{
 		overallJUnitSuites.Errors += openshiftCiJunit.Errors
 		overallJUnitSuites.Tests += openshiftCiJunit.Tests
 
+		// Omit system-err from passed test cases
+		for i := range overallJUnitSuites.TestSuites {
+			for j := range overallJUnitSuites.TestSuites[i].TestCases {
+				tc := &overallJUnitSuites.TestSuites[i].TestCases[j]
+				if tc.Status == "passed" {
+					tc.SystemErr = ""
+				}
+			}
+		}
+
 		generatedJunitFilepath := filepath.Clean(artifactDir + "/junit.xml")
 		outFile, err := os.Create(generatedJunitFilepath)
 		if err != nil {
