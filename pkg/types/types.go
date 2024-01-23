@@ -10,3 +10,11 @@ const (
 
 	JunitFilename string = `/(j?unit|e2e).*\.xml`
 )
+
+type CmdParameter[T any] struct {
+	Name         string
+	Env          string
+	DefaultValue T
+	Value        T
+	Usage        string
+}
