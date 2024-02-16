@@ -21,7 +21,7 @@ jobs:
         run: |
           go run main.go estimate-review \
             --owner ${{ github.repository_owner }} \
-            --repository ${{ github.repository }} \
+            --repository ${{ github.event.repository.name }} \
             --number ${{ github.event.pull_request.number }} \
             > result
           cat result
