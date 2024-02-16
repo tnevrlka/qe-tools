@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  coffee-break:
     runs-on: ubuntu-latest
     container:
       image: golang:1.19
@@ -23,7 +23,7 @@ jobs:
           SLACK_TOKEN: foo
           HACBS_CHANNEL_ID: foo
 
-      - name: Commit and create PR
+      - name: Commit and push
         run: |
           git config --global --add safe.directory /__w/qe-tools/qe-tools
           git init /__w/qe-tools/qe-tools
@@ -33,6 +33,11 @@ jobs:
           git add config/coffee-break/last_week.txt
           git commit -m "chore: Update config/coffee-break/last_week.txt"
           git push -u origin HEAD
-          gh pr create -t "Add last Coffee Break" -b "Created automatically by a GitHub Action." --fill
+
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR
+        run: gh pr create -t "Add last Coffee Break" -b "Created automatically by a GitHub Action." --fill
         env:
           GH_TOKEN: ${{ github.token }}
