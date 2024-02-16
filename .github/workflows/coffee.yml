@@ -29,7 +29,7 @@ jobs:
           git init /__w/qe-tools/qe-tools
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git switch -c $GITHUB_JOB
+          git switch -c coffee-break
           git add config/coffee-break/last_week.txt
           git commit -m "chore: Update config/coffee-break/last_week.txt"
           git push -u origin HEAD
@@ -45,7 +45,7 @@ jobs:
           -b "Created automatically by a GitHub Action." \
           -H coffee-break
           -B main
-          --repo
+          -R ${{ github.repository }}
           --fill
         env:
           GH_TOKEN: ${{ github.token }}
