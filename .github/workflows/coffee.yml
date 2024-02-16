@@ -43,8 +43,8 @@ jobs:
           gh pr create \
           -t "Add last Coffee Break" \
           -b "Created automatically by a GitHub Action." \
-          -H coffee-break
-          -B main
+          -H coffee-break \
+          -B main \
           --fill
         env:
           GH_TOKEN: ${{ github.token }}
