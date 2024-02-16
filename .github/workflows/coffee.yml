@@ -1,8 +1,7 @@
 name: Coffee-break
 
 on:
-  schedule:
-    - cron: '0 0 5 * *'  # This runs at 00:00 UTC on the 5th of every month
+  pull_request:
 
 jobs:
   build:
@@ -14,15 +13,15 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          repository: 'redhat-appstudio/qe-tools'
+          repository: 'tnevrlka/qe-tools'
       - name: Setup Go environment
         uses: actions/setup-go@v5
 
       - name: Run Test and Send Slack Message
         run: go run main.go coffee-break
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          HACBS_CHANNEL_ID: ${{ secrets.HACBS_CHANNEL_ID }}
+          SLACK_TOKEN: foo
+          HACBS_CHANNEL_ID: foo
 
       - name: Commit and create PR
         run: |
