@@ -45,7 +45,7 @@ jobs:
             -b "Created automatically by a GitHub Action." \
             -H coffee-break \
             -B main \
-            --fill
+            -R ${{ github.repository }} \
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
