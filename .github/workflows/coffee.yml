@@ -3,6 +3,7 @@ name: Coffee-break
 on:
   schedule:
     - cron: '0 0 5 * *'  # This runs at 00:00 UTC on the 5th of every month
+  workflow_dispatch:
 
 jobs:
   coffee-break:
@@ -42,7 +43,7 @@ jobs:
       - name: Create PR
         run: |
           gh pr create \
-            -t "Add last Coffee Break" \
+            -t "chore: Add last Coffee Break" \
             -b "Created automatically by a GitHub Action." \
             -H coffee-break \
             -B main \
