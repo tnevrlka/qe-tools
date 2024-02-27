@@ -7,7 +7,6 @@ require (
 	github.com/GoogleCloudPlatform/testgrid v0.0.169
 	github.com/daixiang0/gci v0.12.1
 	github.com/go-critic/go-critic v0.11.1
-	github.com/goccy/go-yaml v1.11.3
 	github.com/google/go-github/v56 v56.0.0
 	github.com/gotesttools/gotestfmt/v2 v2.5.0
 	github.com/mgechev/revive v1.3.7
@@ -151,7 +150,6 @@ require (
 	golang.org/x/term v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240125205218-1f4bbc51befe // indirect
