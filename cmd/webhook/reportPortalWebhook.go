@@ -2,19 +2,20 @@ package webhook
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/redhat-appstudio/qe-tools/pkg/prow"
 	"github.com/redhat-appstudio/qe-tools/pkg/types"
 	"github.com/redhat-appstudio/qe-tools/pkg/webhook"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
-	"os"
-	"strconv"
 )
 
 var (
 	openshiftJobSpec *prow.OpenshiftJobSpec
-	parameters       = []*types.CmdParameter[string]{jobSpec, saltSecret, webhookTargetUrl}
+	parameters       = []*types.CmdParameter[string]{jobSpec, saltSecret, webhookTargetURL}
 	jobSpec          = &types.CmdParameter[string]{
 		Name:  "job-spec",
 		Env:   "JOB_SPEC",
@@ -26,7 +27,7 @@ var (
 		DefaultValue: "123456789",
 		Usage:        "Salt for webhook config",
 	}
-	webhookTargetUrl = &types.CmdParameter[string]{
+	webhookTargetURL = &types.CmdParameter[string]{
 		Name:         "target-url",
 		Env:          "TARGET_URL",
 		DefaultValue: "https://hook.pipelinesascode.com/EyFYTakxEgEy",
@@ -70,7 +71,7 @@ var reportPortalWebhookCmd = &cobra.Command{
 			RepositoryURL: openshiftJobSpec.Refs.RepoLink,
 		}
 
-		resp, err := wh.CreateAndSend(saltSecret.Value, webhookTargetUrl.Value)
+		resp, err := wh.CreateAndSend(saltSecret.Value, webhookTargetURL.Value)
 		if err != nil {
 			return fmt.Errorf("error sending webhook: %+v", err)
 		}

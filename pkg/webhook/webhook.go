@@ -103,10 +103,10 @@ func (hook *GoWebHook) Send(receiverURL string) (*http.Response, error) {
 		hook.SignatureHeader = DefaultSignatureHeader
 	}
 
-	if !hook.IsSecure { // #nosec G402
+	if !hook.IsSecure {
 		// By default do not verify SSL certificate validity
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true, // #nosec G402
 		}
 	}
 

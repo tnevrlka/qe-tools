@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/redhat-appstudio/qe-tools/pkg/types"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/redhat-appstudio/qe-tools/pkg/types"
 
 	"golang.org/x/exp/slices"
 

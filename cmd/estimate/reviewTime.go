@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
+
 	"github.com/google/go-github/v56/github"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
-	"regexp"
 )
 
 const (
@@ -26,11 +27,13 @@ const (
 	defaultConfigPath = "./config/estimate"
 )
 
+// TimeLabel represents a label describing estimated time to review a PR
 type TimeLabel struct {
 	Name string `yaml:"name"`
 	Time int    `yaml:"time"`
 }
 
+// CoefficientConfig represents coefficients used in estimation of time required for a PR review
 type CoefficientConfig struct {
 	Weight  float64 `yaml:"weight"`
 	Ceiling float64 `yaml:"ceiling"`
@@ -66,9 +69,10 @@ var (
 	human    bool
 	addLabel bool
 
-	emptyLabelsError = errors.New("zero labels specified in config, make sure there is a non-empty 'labels' list")
+	errEmptyLabels = errors.New("zero labels specified in config, make sure there is a non-empty 'labels' list")
 )
 
+// EstimateTimeToReviewCmd is a cobra command that estimates time needed to review a PR
 var EstimateTimeToReviewCmd = &cobra.Command{
 	Use:   "estimate-review",
 	Short: "Estimate time needed to review a PR in seconds",
@@ -91,7 +95,7 @@ var EstimateTimeToReviewCmd = &cobra.Command{
 			client.WithAuthToken(ghToken)
 		}
 
-		review, err := EstimateTimeToReview(client, owner, repository, prNumber)
+		review, err := TimeToReview(client, owner, repository, prNumber)
 		if err != nil {
 			return err
 		}
@@ -111,7 +115,8 @@ var EstimateTimeToReviewCmd = &cobra.Command{
 	},
 }
 
-func EstimateTimeToReview(client *github.Client, owner, repository string, number int) (int, error) {
+// TimeToReview estimates time needed to review a PR
+func TimeToReview(client *github.Client, owner, repository string, number int) (int, error) {
 	files, err := getChangedFiles(client, owner, repository, number)
 	if err != nil {
 		return -1, err
@@ -219,7 +224,7 @@ func listLabels(client *github.Client) ([]*github.Label, error) {
 
 func getLabelBasedOnTime(reviewTime int) (*TimeLabel, error) {
 	if len(config.Labels) == 0 {
-		return nil, emptyLabelsError
+		return nil, errEmptyLabels
 	}
 	maxLabel := TimeLabel{Time: -1}
 	for _, label := range config.Labels {

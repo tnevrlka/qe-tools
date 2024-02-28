@@ -24,8 +24,8 @@ type ArtifactScanner struct {
 	  "e2e-tests": {"build-log.txt": ...},
 	}
 	*/
-	ArtifactStepMap map[ArtifactStepName]ArtifactFilenameMap
-	ArtifactDirectoryPrefix    string
+	ArtifactStepMap         map[ArtifactStepName]ArtifactFilenameMap
+	ArtifactDirectoryPrefix string
 }
 
 // ScannerConfig contains fields required
@@ -52,11 +52,14 @@ type Artifact struct {
 	FullName string
 }
 
+// OpenshiftJobSpec represents the Openshift job spec data
 type OpenshiftJobSpec struct {
 	Type string `json:"type"`
 	Job  string `json:"job"`
 	Refs Refs   `json:"refs"`
 }
+
+// Refs represent the refs field of an OpenShift job
 type Refs struct {
 	RepoLink     string `json:"repo_link"`
 	Repo         string `json:"repo"`
@@ -64,32 +67,11 @@ type Refs struct {
 	Pulls        []Pull `json:"pulls"`
 }
 
+// Pull represents a GitHub Pull Request
 type Pull struct {
 	Number     int    `json:"number"`
 	Author     string `json:"author"`
 	SHA        string `json:"sha"`
 	PRLink     string `json:"link"`
 	AuthorLink string `json:"author_link"`
-}
-
-type GithubPRInfo struct {
-	Head Head `json:"head"`
-}
-
-type Head struct {
-	Label string `json:"label"`
-}
-
-type GithubBranch struct {
-	Name string `json:"name"`
-}
-
-type PullRequestMetadata struct {
-	Author       string
-	Organization string
-	RepoName     string
-	BranchName   string
-	CommitSHA    string
-	Number       int
-	RemoteName   string
 }
