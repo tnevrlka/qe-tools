@@ -1,5 +1,6 @@
 package types
 
+// Constants common across the whole project
 const (
 	ArtifactDirEnv string = "ARTIFACT_DIR"
 	GithubTokenEnv string = "GITHUB_TOKEN" // #nosec G101
@@ -11,6 +12,7 @@ const (
 	JunitFilename string = `/(j?unit|e2e).*\.xml`
 )
 
+// CmdParameter represents an abstraction for viper parameters
 type CmdParameter[T any] struct {
 	Name         string
 	Env          string

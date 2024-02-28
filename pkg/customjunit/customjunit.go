@@ -2,7 +2,8 @@ package customjunit
 
 import (
 	"encoding/xml"
-	. "github.com/onsi/ginkgo/v2/reporters"
+
+	"github.com/onsi/ginkgo/v2/reporters"
 )
 
 /*
@@ -10,6 +11,8 @@ These custom structures are copied from https://github.com/onsi/ginkgo/blob/v2.1
 These custom structures are modified to use Skipped field instead of Disabled and the Status field is removed
 See RHTAP-1902 for more details.
 */
+
+// TestSuites represent JUnit test suites from Ginkgo
 type TestSuites struct {
 	XMLName xml.Name `xml:"testsuites"`
 	// Tests maps onto the total number of specs in all test suites (this includes any suite nodes such as BeforeSuite)
@@ -23,10 +26,11 @@ type TestSuites struct {
 	// Time is the time in seconds to execute all test suites
 	Time float64 `xml:"time,attr"`
 
-	//The set of all test suites
+	// The set of all test suites
 	TestSuites []TestSuite `xml:"testsuite"`
 }
 
+// TestSuite represents a JUnit test suite from Ginkgo
 type TestSuite struct {
 	// Name maps onto the description of the test suite - maps onto Report.SuiteDescription
 	Name string `xml:"name,attr"`
@@ -45,13 +49,14 @@ type TestSuite struct {
 	// Timestamp is the ISO 8601 formatted start-time of the suite - maps onto Report.StartTime
 	Timestamp string `xml:"timestamp,attr"`
 
-	//Properties captures the information stored in the rest of the Report type (including SuiteConfig) as key-value pairs
-	Properties JUnitProperties `xml:"properties"`
+	// Properties captures the information stored in the rest of the Report type (including SuiteConfig) as key-value pairs
+	Properties reporters.JUnitProperties `xml:"properties"`
 
-	//TestCases capture the individual specs
+	// TestCases capture the individual specs
 	TestCases []TestCase `xml:"testcase"`
 }
 
+// TestCase represents a JUnit test case from Ginkgo
 type TestCase struct {
 	// Name maps onto the full text of the spec - equivalent to "[SpecReport.LeafNodeType] SpecReport.FullText()"
 	Name string `xml:"name,attr"`
@@ -59,14 +64,14 @@ type TestCase struct {
 	Classname string `xml:"classname,attr"`
 	// Time is the time in seconds to execute the spec - maps onto SpecReport.RunTime
 	Time float64 `xml:"time,attr"`
-	//Skipped is populated with a message if the test was skipped or pending
-	Skipped *JUnitSkipped `xml:"skipped,omitempty"`
-	//Error is populated if the test panicked or was interrupted
-	Error *JUnitError `xml:"error,omitempty"`
-	//Failure is populated if the test failed
-	Failure *JUnitFailure `xml:"failure,omitempty"`
-	//SystemOut maps onto any captured stdout/stderr output - maps onto SpecReport.CapturedStdOutErr
+	// Skipped is populated with a message if the test was skipped or pending
+	Skipped *reporters.JUnitSkipped `xml:"skipped,omitempty"`
+	// Error is populated if the test panicked or was interrupted
+	Error *reporters.JUnitError `xml:"error,omitempty"`
+	// Failure is populated if the test failed
+	Failure *reporters.JUnitFailure `xml:"failure,omitempty"`
+	// SystemOut maps onto any captured stdout/stderr output - maps onto SpecReport.CapturedStdOutErr
 	SystemOut string `xml:"system-out,omitempty"`
-	//SystemOut maps onto any captured GinkgoWriter output - maps onto SpecReport.CapturedGinkgoWriterOutput
+	// SystemOut maps onto any captured GinkgoWriter output - maps onto SpecReport.CapturedGinkgoWriterOutput
 	SystemErr string `xml:"system-err,omitempty"`
 }
