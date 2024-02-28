@@ -18,7 +18,7 @@ jobs:
         run: |
           pip install pre-commit
           make bootstrap
-          go mod tidy && go mod vendor
+          go mod tidy
 
       - name: Run pre-commit checks
         run: make pre-commit
