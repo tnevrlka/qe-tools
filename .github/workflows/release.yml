@@ -20,4 +20,5 @@ jobs:
           goos: linux
           goarch: amd64
           goversion: 1.19
-          binary_name: "qe-tools"
+          binary_name: qe-tools
+          extra_files: config
