@@ -1,0 +1,22 @@
+name: release
+
+on:
+  release: [ create ]
+
+permissions:
+  contents: write
+
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: linux
+          goarch: amd64
+          goversion: 1.19
+          binary_name: "qe-tools"
