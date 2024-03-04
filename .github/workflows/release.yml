@@ -1,7 +1,8 @@
 name: release
 
 on:
-  release: [ create ]
+  release:
+    types: [ create ]
 
 permissions:
   contents: write
