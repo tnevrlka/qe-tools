@@ -166,7 +166,8 @@ func estimateFileTimes(files []*github.CommitFile) int {
 		}
 		estimate, included := config.Extensions[extension]
 		if !included {
-			estimate, defaultIncluded := config.Extensions["default"]
+			var defaultIncluded bool
+			estimate, defaultIncluded = config.Extensions["default"]
 			if !defaultIncluded {
 				estimate = defaultExtensionWeight
 			}
@@ -228,7 +229,7 @@ func getLabelBasedOnTime(reviewTime int) (*TimeLabel, error) {
 	}
 	maxLabel := TimeLabel{Time: -1}
 	for _, label := range config.Labels {
-		if label.Time < reviewTime && label.Time > maxLabel.Time {
+		if label.Time <= reviewTime && label.Time > maxLabel.Time {
 			maxLabel = label
 		}
 	}
